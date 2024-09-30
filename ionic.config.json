@@ -1,0 +1,7 @@
+{
+  "name": "gerenciador_financeiro",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

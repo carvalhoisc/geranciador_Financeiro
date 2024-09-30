@@ -1,0 +1,79 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <div style="display: flex; font-size: 20px; margin-right: 20px; cursor: pointer;">
+      <ion-title>
+        Saldo Líquido
+      </ion-title>
+      <ion-datetime-button datetime="datetime-saldos"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime id="datetime-saldos" presentation="month"
+            (ionChange)="filtrarTransacoesPorMes($event)"></ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Relatórios</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <app-explore-container *ngIf="transacoes.length == 0" name="Saldo Líquido"></app-explore-container>
+
+  <div class="container" style="display: flex; width: 100%; justify-content: space-between;">
+    <ion-card class="card-item" style="width: 50%;">
+      <ion-card-header>
+        <ion-card-subtitle>Entrada</ion-card-subtitle>
+        <ion-card-title
+          style="color: rgba(64, 64, 255, 0.741); font-size: 15px;">{{formatCurrency(somaEntradas())}}</ion-card-title>
+      </ion-card-header>
+    </ion-card>
+
+    <ion-card class="card-item" style="width: 50%;">
+      <ion-card-header>
+        <ion-card-subtitle>Saídas</ion-card-subtitle>
+        <ion-card-title
+          style="color: rgba(254, 50, 50, 0.753); font-size: 15px;">{{formatCurrency(somaSaidas())}}</ion-card-title>
+      </ion-card-header>
+    </ion-card>
+  </div>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Saldo Líquido</ion-card-subtitle>
+      <ion-card-title *ngIf="somaSaldoLiquido() > 0"
+        style="color: green;">{{formatCurrency(somaSaldoLiquido())}}</ion-card-title>
+      <ion-card-title *ngIf="somaSaldoLiquido() < 0" style="color: rgba(254, 50, 50, 0.753);">R$
+        {{somaSaldoLiquido()}}</ion-card-title>
+    </ion-card-header>
+  </ion-card>
+
+
+  <ion-accordion-group>
+    <ion-accordion *ngFor="let transacao of transacoesFiltradas">
+      <ion-item slot="header" color="light">
+        <div class="container-custom"
+          style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+          <ion-label *ngIf="transacao.tipo === 0" style="color: green;">{{transacao.descricao}}</ion-label>
+          <ion-label *ngIf="transacao.tipo === 1"
+            style="color: rgba(254, 50, 50, 0.753);">{{transacao.descricao}}</ion-label>
+          <ion-icon (click)="setOpen(true, transacao._id)" style="font-size: 20px; cursor: pointer;"
+            name="trash-outline"></ion-icon>
+        </div>
+      </ion-item>
+      <div class="ion-padding" slot="content">Valor: {{formatCurrency(transacao.valor)}}</div>
+      <div class="ion-padding" slot="content">Data: {{formatDate(transacao.data)}}</div>
+
+      <ion-action-sheet [isOpen]="isActionSheetOpen" header="Deseja mesmo remover?" [buttons]="actionSheetButtons"
+        (didDismiss)="setOpen(false, transacao._id)"></ion-action-sheet>
+    </ion-accordion>
+  </ion-accordion-group>
+</ion-content>
